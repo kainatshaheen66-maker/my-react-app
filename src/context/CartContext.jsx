@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { auth } from "../firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -9,14 +9,20 @@ export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [toast, setToast] = useState("");
 
-  // AUTH
+  const toastRef = useRef(null);
+
+  // AUTH LISTENER
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
 
       if (u) {
-        const saved = localStorage.getItem(`cart_${u.uid}`);
-        setCart(saved ? JSON.parse(saved) : []);
+        try {
+          const saved = localStorage.getItem(`cart_${u.uid}`);
+          setCart(saved ? JSON.parse(saved) : []);
+        } catch (err) {
+          setCart([]);
+        }
       } else {
         setCart([]);
       }
@@ -32,14 +38,26 @@ export function CartProvider({ children }) {
     }
   }, [cart, user]);
 
-  // TOAST
+  // ✅ CLEAN SINGLE TOAST (FIXED)
   const showToast = (msg) => {
+    if (toastRef.current) {
+      clearTimeout(toastRef.current);
+    }
+
     setToast(msg);
-    setTimeout(() => setToast(""), 2000);
+
+    toastRef.current = setTimeout(() => {
+      setToast("");
+    }, 2000);
   };
 
-  // ADD TO CART
+  // ADD TO CART (LOGIN PROTECTED)
   const addToCart = (item) => {
+    if (!user) {
+      showToast("Please login first 🔐");
+      return;
+    }
+
     setCart((prev) => {
       const exists = prev.find((p) => p.id === item.id);
 
@@ -85,7 +103,9 @@ export function CartProvider({ children }) {
   };
 
   const clearCart = () => {
-    if (user) localStorage.removeItem(`cart_${user.uid}`);
+    if (user) {
+      localStorage.removeItem(`cart_${user.uid}`);
+    }
     setCart([]);
     showToast("Cart cleared 🧹");
   };
@@ -97,6 +117,7 @@ export function CartProvider({ children }) {
       value={{
         user,
         cart,
+        setCart,
         addToCart,
         increaseQuantity,
         decreaseQuantity,
@@ -107,6 +128,7 @@ export function CartProvider({ children }) {
       }}
     >
       {children}
+
     </CartContext.Provider>
   );
 }
