@@ -5,11 +5,14 @@ import { useAuth } from "../context/AuthContext";
 import Cart from "../pages/Cart";
 
 function Navbar() {
-  const { cartCount, toast } = useCart(); // 🔥 UPDATED (toast added)
+  const { cartCount, toast } = useCart();
   const { user, logout } = useAuth();
 
   const [open, setOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+
+  // 🔥 helper function
+  const closeMenu = () => setOpen(false);
 
   return (
     <>
@@ -18,21 +21,28 @@ function Navbar() {
         <h2 className="logo">Glow Salt</h2>
 
         {/* MOBILE BUTTON */}
-        <button className="menu-btn" onClick={() => setOpen(!open)}>
+        <button
+          className="menu-btn"
+          onClick={() => setOpen(!open)}
+        >
           ☰
         </button>
 
         <div className={`nav-links ${open ? "active" : ""}`}>
 
-          <Link to="/" onClick={() => setOpen(false)}>Home</Link>
+          <Link to="/" onClick={closeMenu}>Home</Link>
 
-          <Link to="/orders" onClick={() => setOpen(false)}>Orders</Link>
+          <Link to="/orders" onClick={closeMenu}>Orders</Link>
 
           {!user ? (
             <>
-              <Link to="/login" onClick={() => setOpen(false)}>Login</Link>
+              <Link to="/login" onClick={closeMenu}>Login</Link>
 
-              <Link to="/signup" className="signup-btn" onClick={() => setOpen(false)}>
+              <Link
+                to="/signup"
+                className="signup-btn"
+                onClick={closeMenu}
+              >
                 Signup
               </Link>
             </>
@@ -43,19 +53,28 @@ function Navbar() {
               {/* CART ICON */}
               <button
                 className="cart-icon-btn"
-                onClick={() => setCartOpen(true)}
+                onClick={() => {
+                  setCartOpen(true);
+                  closeMenu(); // 🔥 close mobile menu
+                }}
               >
                 🛒 ({cartCount})
               </button>
 
-              <button onClick={logout} className="logout-btn">
+              <button
+                onClick={() => {
+                  logout();
+                  closeMenu(); // 🔥 close menu after logout
+                }}
+                className="logout-btn"
+              >
                 Logout
               </button>
             </>
           )}
 
           {user?.email === "admin@gmail.com" && (
-            <Link to="/admin" onClick={() => setOpen(false)}>
+            <Link to="/admin" onClick={closeMenu}>
               Admin
             </Link>
           )}
@@ -77,10 +96,13 @@ function Navbar() {
 
       {/* OVERLAY */}
       {cartOpen && (
-        <div className="overlay" onClick={() => setCartOpen(false)} />
+        <div
+          className="overlay"
+          onClick={() => setCartOpen(false)}
+        />
       )}
 
-      {/* 🔥 TOAST (NEW ADDITION) */}
+      {/* TOAST */}
       {toast && (
         <div className="toast">
           {toast}

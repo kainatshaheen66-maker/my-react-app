@@ -6,12 +6,13 @@ import { useCart } from "../context/CartContext";
 function ProductDetails() {
   const { id, pid } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+
+  const { addToCart, user } = useCart();
 
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
-  // ✅ SAFE STRING MATCH (MAIN FIX)
+  // SAFE STRING MATCH
   const group = productGroups.find(
     (g) => String(g.id) === String(id)
   );
@@ -31,6 +32,14 @@ function ProductDetails() {
   };
 
   const handleAdd = () => {
+
+    // ❌ NOT LOGGED IN
+    if (!user) {
+      addToCart(product); // CartContext toast handle karega
+      return; // same page pe rahega
+    }
+
+    // ✅ LOGGED IN
     for (let i = 0; i < qty; i++) {
       addToCart(product);
     }
@@ -39,6 +48,7 @@ function ProductDetails() {
 
     setTimeout(() => {
       setAdded(false);
+
       navigate("/cart");
     }, 1200);
   };
@@ -61,10 +71,18 @@ function ProductDetails() {
 
         {/* QTY */}
         <div className="qty-box">
-  <button className="qty-btn" onClick={decrease}>-</button>
-  <span className="qty-number">{qty}</span>
-  <button className="qty-btn" onClick={increase}>+</button>
-</div>
+          <button className="qty-btn" onClick={decrease}>
+            -
+          </button>
+
+          <span className="qty-number">
+            {qty}
+          </span>
+
+          <button className="qty-btn" onClick={increase}>
+            +
+          </button>
+        </div>
 
         <button onClick={handleAdd} className="add-btn">
           Add to Cart

@@ -1,4 +1,7 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+
+import { useAuth } from "./context/AuthContext";
 
 import Navbar from "./components/Navbar";
 import AdminNavbar from "./components/AdminNavbar";
@@ -16,7 +19,18 @@ import CategoryPage from "./pages/CategoryPage";
 import AddItems from "./pages/AddItems";
 import ProductDetails from "./pages/ProductDetails";
 
-import { useAuth } from "./context/AuthContext";
+function ScrollFix() {
+  const location = useLocation();
+
+  useEffect(() => {
+    // 🔥 HARD RESET SCROLL (FIXES YOUR ISSUE COMPLETELY)
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  return null;
+}
 
 function App() {
   const { user } = useAuth();
@@ -24,7 +38,6 @@ function App() {
 
   const isAdmin = user?.email === "admin@gmail.com";
 
-  // ADMIN PAGES LIST
   const adminPages = [
     "/admin",
     "/admin/orders",
@@ -32,13 +45,15 @@ function App() {
     "/add-items",
   ];
 
-  // FIXED: supports sub-routes too
   const isAdminPage = adminPages.some((path) =>
     location.pathname.startsWith(path)
   );
 
   return (
     <>
+      {/* 🔥 GLOBAL SCROLL FIX (IMPORTANT) */}
+      <ScrollFix />
+
       {/* NAVBAR */}
       {isAdminPage && isAdmin ? (
         <AdminNavbar />
@@ -50,7 +65,7 @@ function App() {
 
         {/* PUBLIC ROUTES */}
         <Route path="/" element={<Home />} />
-        <Route path="/Home" element={<Home />} />
+        <Route path="/home" element={<Home />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -60,7 +75,7 @@ function App() {
         <Route path="/category/:id" element={<CategoryPage />} />
         <Route path="/product/:id/:pid" element={<ProductDetails />} />
 
-        {/* ADMIN DASHBOARD */}
+        {/* ADMIN */}
         <Route
           path="/admin"
           element={
@@ -74,7 +89,6 @@ function App() {
           }
         />
 
-        {/* ADMIN ORDERS */}
         <Route
           path="/admin/orders"
           element={
@@ -88,7 +102,6 @@ function App() {
           }
         />
 
-        {/* USERS */}
         <Route
           path="/users"
           element={
@@ -102,7 +115,6 @@ function App() {
           }
         />
 
-        {/* ADD ITEMS */}
         <Route
           path="/add-items"
           element={

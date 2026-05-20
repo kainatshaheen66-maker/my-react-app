@@ -18,13 +18,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = async () => {
-    await signOut(auth);
-
-    // 🔥 FORCE RESET STATE
-    setUser(null);
-
-    // optional: full reload for clean state
-    window.location.href = "/login";
+    try {
+      await signOut(auth);
+      setUser(null);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (

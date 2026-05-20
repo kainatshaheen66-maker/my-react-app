@@ -1,35 +1,66 @@
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase/firebase";
+import {
+  createUserWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
+
+import {
+  doc,
+  setDoc,
+  serverTimestamp
+} from "firebase/firestore";
+
+import { auth, db } from "../firebase/firebase";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
 
     try {
+      // create auth user
+      const userCredential =
+        await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
 
-      await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
+      const user = userCredential.user;
+
+      // 🔥 save user in firestore
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          email: user.email,
+          displayName: user.email.split("@")[0],
+          createdAt: serverTimestamp(),
+        }
       );
 
-      setMessage("🎉 Account Created Successfully!");
+      // stop auto login
+      await signOut(auth);
+
+      setMessage(
+        "🎉 Account Created Successfully! Redirecting..."
+      );
 
       setEmail("");
       setPassword("");
 
       setTimeout(() => {
-        setMessage("");
-      }, 3000);
+        navigate("/login", {
+          replace: true,
+        });
+      }, 2000);
 
     } catch (error) {
-
       setMessage("❌ " + error.message);
 
       setTimeout(() => {
@@ -40,7 +71,6 @@ function Signup() {
 
   return (
     <div className="auth-page">
-
       <div className="auth-card">
 
         {message && (
@@ -57,13 +87,18 @@ function Signup() {
           Join Glow Salt today
         </p>
 
-        <form onSubmit={handleSignup} className="auth-form">
+        <form
+          onSubmit={handleSignup}
+          className="auth-form"
+        >
 
           <input
             type="email"
             placeholder="Enter your email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e)=>
+              setEmail(e.target.value)
+            }
             required
           />
 
@@ -71,7 +106,9 @@ function Signup() {
             type="password"
             placeholder="Enter your password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e)=>
+              setPassword(e.target.value)
+            }
             required
           />
 
@@ -80,7 +117,6 @@ function Signup() {
           </button>
 
         </form>
-
       </div>
     </div>
   );
