@@ -18,12 +18,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
+    await signOut(auth);
+    setUser(null);
   };
 
   return (

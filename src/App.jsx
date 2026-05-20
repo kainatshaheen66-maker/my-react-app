@@ -1,6 +1,5 @@
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-
 import { useAuth } from "./context/AuthContext";
 
 import Navbar from "./components/Navbar";
@@ -23,9 +22,6 @@ function ScrollFix() {
   const location = useLocation();
 
   useEffect(() => {
-    // 🔥 HARD RESET SCROLL (FIXES YOUR ISSUE COMPLETELY)
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
@@ -33,8 +29,16 @@ function ScrollFix() {
 }
 
 function App() {
-  const { user } = useAuth();
+  const { user } = useAuth();   // ✅ ONLY ONCE
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // 🔥 GLOBAL LOGOUT FIX
+  useEffect(() => {
+    if (!user) {
+      navigate("/login", { replace: true });
+    }
+  }, [user, navigate]);
 
   const isAdmin = user?.email === "admin@gmail.com";
 
@@ -51,25 +55,20 @@ function App() {
 
   return (
     <>
-      {/* 🔥 GLOBAL SCROLL FIX (IMPORTANT) */}
       <ScrollFix />
 
       {/* NAVBAR */}
-      {isAdminPage && isAdmin ? (
-        <AdminNavbar />
-      ) : (
-        <Navbar />
-      )}
+      {isAdminPage && isAdmin ? <AdminNavbar /> : <Navbar />}
 
       <Routes>
 
-        {/* PUBLIC ROUTES */}
+        {/* PUBLIC */}
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
-
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/cart" element={<Cart />} />
+
         <Route path="/orders" element={<Orders />} />
 
         <Route path="/category/:id" element={<CategoryPage />} />
@@ -79,56 +78,31 @@ function App() {
         <Route
           path="/admin"
           element={
-            isAdmin ? (
-              <AdminLayout>
-                <Admin />
-              </AdminLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
+            isAdmin ? <AdminLayout><Admin /></AdminLayout> : <Navigate to="/login" />
           }
         />
 
         <Route
           path="/admin/orders"
           element={
-            isAdmin ? (
-              <AdminLayout>
-                <AdminOrders />
-              </AdminLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
+            isAdmin ? <AdminLayout><AdminOrders /></AdminLayout> : <Navigate to="/login" />
           }
         />
 
         <Route
           path="/users"
           element={
-            isAdmin ? (
-              <AdminLayout>
-                <Users />
-              </AdminLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
+            isAdmin ? <AdminLayout><Users /></AdminLayout> : <Navigate to="/login" />
           }
         />
 
         <Route
           path="/add-items"
           element={
-            isAdmin ? (
-              <AdminLayout>
-                <AddItems />
-              </AdminLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
+            isAdmin ? <AdminLayout><AddItems /></AdminLayout> : <Navigate to="/login" />
           }
         />
 
-        {/* FALLBACK */}
         <Route path="*" element={<Home />} />
 
       </Routes>

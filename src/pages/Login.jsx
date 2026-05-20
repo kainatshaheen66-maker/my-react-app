@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -11,19 +10,20 @@ function Login() {
 
   const navigate = useNavigate();
 
-  // 🔥 AUTO REDIRECT IF ALREADY LOGGED IN
+  // 🔥 Prevent logged-in user from staying on login page
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
-      if (user?.email === "admin@gmail.com") {
-        navigate("/admin", { replace: true });
-      } 
-      else if (user) {
-        navigate("/", { replace: true });
+      if (user) {
+        if (user.email === "admin@gmail.com") {
+          navigate("/admin", { replace: true });
+        } else {
+          navigate("/", { replace: true });
+        }
       }
     });
 
     return () => unsub();
-  }, []);
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -42,14 +42,12 @@ function Login() {
       setEmail("");
       setPassword("");
 
-      // 🔥 ROLE BASED REDIRECT
-      setTimeout(() => {
-        if (user.email === "admin@gmail.com") {
-          navigate("/admin", { replace: true });
-        } else {
-          navigate("/", { replace: true });
-        }
-      }, 800);
+      // 🔥 Immediate redirect (no delay issues)
+      if (user.email === "admin@gmail.com") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
 
     } catch (error) {
       setMessage("❌ " + error.message);
