@@ -5,8 +5,6 @@ import lamp4 from "../assets/Lamps/Salt-balls.jpg";
 import lamp5 from "../assets/Lamps/Basket-Lamp.jpg";
 import lamp6 from "../assets/Lamps/3D.jpg";
 import lamp7 from "../assets/Lamps/Tiles.jpg";
-import lamp8 from "../assets/Lamps/Edible.jpg";
-import lamp9 from "../assets/Lamps/Kitchen.jpg";
 import lamp10 from "../assets/Lamps/candle.jpg";
 import lamp11 from "../assets/Lamps/1.jpg";
 import lamp12 from "../assets/Lamps/2.jpg";
