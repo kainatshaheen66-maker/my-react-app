@@ -2,7 +2,7 @@ import lamp1 from "../assets/Lamps/naturalshape.jpg";
 import lamp2 from "../assets/Lamps/crafted.jpg";
 import lamp3 from "../assets/Lamps/crystal.jpg";
 import lamp4 from "../assets/Lamps/Salt-balls.jpg";
-import lamp5 from "../assets/Lamps/Basket-Lamp.jpg";
+import lamp5 from "../assets/Lamps/basket_lamp.jpg";
 import lamp6 from "../assets/Lamps/3D.jpg";
 import lamp7 from "../assets/Lamps/Tiles.jpg";
 import lamp10 from "../assets/Lamps/candle.jpg";
