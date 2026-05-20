@@ -10,31 +10,44 @@ import {
 
 import { db } from "../firebase/firebase";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function Orders() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let unsub;
+
+    // 🚨 USER NOT LOGGED IN
     if (!user) {
+      setOrders([]);
       setLoading(false);
-      return;
+
+      // ✔ safer redirect (avoids render conflict)
+      const t = setTimeout(() => {
+        navigate("/login", { replace: true });
+      }, 0);
+
+      return () => clearTimeout(t);
     }
+
+    setLoading(true);
 
     const q = query(
       collection(db, "orders"),
       where("userId", "==", user.uid)
     );
 
-    const unsub = onSnapshot(q, (snap) => {
+    unsub = onSnapshot(q, (snap) => {
       const data = snap.docs
         .map((d) => ({
           id: d.id,
           ...d.data(),
         }))
-        // 🔥 NEW ORDERS FIRST
         .sort(
           (a, b) =>
             (b.createdAt?.seconds || 0) -
@@ -45,15 +58,21 @@ function Orders() {
       setLoading(false);
     });
 
-    return () => unsub();
-  }, [user]);
+    return () => {
+      if (unsub) unsub();
+    };
+  }, [user, navigate]);
 
   const cancelOrder = async (id) => {
     await deleteDoc(doc(db, "orders", id));
   };
 
-  const canCancel = (status) =>
-    !status || status === "Pending";
+  const canCancel = (status) => !status || status === "Pending";
+
+  // 🚨 EXTRA SAFETY: prevent showing page when logged out
+  if (!user) {
+    return null;
+  }
 
   if (loading) {
     return (
@@ -76,20 +95,16 @@ function Orders() {
           {orders.map((order) => (
             <div key={order.id} className="order-card">
 
-              {/* HEADER */}
               <div className="order-header">
                 <h3>Order #{order.id.slice(0, 8)}</h3>
 
                 <small style={{ color: "#777" }}>
                   {order.createdAt
-                    ? new Date(
-                        order.createdAt.seconds * 1000
-                      ).toLocaleString()
+                    ? new Date(order.createdAt.seconds * 1000).toLocaleString()
                     : "No Date"}
                 </small>
               </div>
 
-              {/* ITEMS */}
               {order.items?.map((item, i) => (
                 <div key={i} className="order-item">
 
@@ -100,9 +115,7 @@ function Orders() {
                   />
 
                   <div className="order-item-info">
-                    <span className="order-item-name">
-                      {item.name}
-                    </span>
+                    <span className="order-item-name">{item.name}</span>
 
                     <span className="order-item-qty">
                       Qty: {item.quantity}
@@ -117,7 +130,6 @@ function Orders() {
                 </div>
               ))}
 
-              {/* BOTTOM */}
               <div style={{ marginTop: "auto" }}>
 
                 <h4 className="order-total">
@@ -132,7 +144,6 @@ function Orders() {
                     textAlign: "center",
                     marginBottom: "10px",
                     fontWeight: "bold",
-                    letterSpacing: "0.5px",
                     background:
                       order.status === "Delivered"
                         ? "green"
