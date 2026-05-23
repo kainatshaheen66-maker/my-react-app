@@ -3,18 +3,19 @@ import { collection, addDoc } from "firebase/firestore";
 
 export const placeOrder = async (cart, userId, totalPrice) => {
   try {
+    const safeItems = cart.map(item => ({
+      id: item.id,
+      title: item.title,
+      price: item.price,
+      qty: item.qty,
+      image: item.image || ""   // 🔥 IMPORTANT FIX
+    }));
+
     await addDoc(collection(db, "orders"), {
       userId,
-
-      // FULL CART (IMPORTANT)
-      items: cart,
-
-      // FIXED TOTAL
+      items: safeItems,
       total: totalPrice,
-
-      // 🔥 MUST EXIST (USER + ADMIN SYNC)
       status: "Pending",
-
       createdAt: new Date()
     });
 

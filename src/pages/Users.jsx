@@ -38,7 +38,7 @@ function Users() {
   return (
     <div style={{ padding: "20px", color: "#ff8800" }}>
 
-      <h2 style={{ color: "#ff8800" }}>
+      <h2 style={{ color: "#ff8800", textAlign: "center" }}>
         Registered Users
       </h2>
 

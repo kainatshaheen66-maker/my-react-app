@@ -16,21 +16,17 @@ function AdminLayout({ children }) {
   return (
     <div className="admin-layout">
 
-      {/* TOP BAR (MOBILE HAMBURGER) */}
-      <div className="admin-topbar">
-        <button
-          className="admin-hamburger"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-        >
-          ☰
-        </button>
-
-        <h2 className="admin-logo-mobile">Admin Panel</h2>
-      </div>
+      {/* HAMBURGER (MOBILE ONLY) */}
+      <button
+        className="admin-hamburger"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        ☰
+      </button>
 
       {/* SIDEBAR */}
       <aside className={`admin-sidebar ${sidebarOpen ? "open" : ""}`}>
-        <h2 className="admin-logo">Admin Panel</h2>
+        <h2 className="admin-logo-mobile">Admin Panel</h2>
 
         <Link to="/admin" onClick={() => setSidebarOpen(false)}>Dashboard</Link>
         <Link to="/admin/orders" onClick={() => setSidebarOpen(false)}>Orders</Link>
@@ -42,15 +38,18 @@ function AdminLayout({ children }) {
         </button>
       </aside>
 
+      {/* OVERLAY */}
+      {sidebarOpen && (
+        <div
+          className="admin-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* MAIN */}
       <main className="admin-main">
         {children}
       </main>
-
-      {/* OVERLAY */}
-      {sidebarOpen && (
-        <div className="admin-overlay" onClick={() => setSidebarOpen(false)} />
-      )}
 
     </div>
   );

@@ -2,44 +2,74 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs
+} from "firebase/firestore";
+
 import { db } from "../firebase/firebase";
 
-function AdminNavbar({ toggleSidebar }) {
+function AdminNavbar() {
 
   const { logout } = useAuth();
+
   const [ordersCount, setOrdersCount] = useState(0);
 
+  // FETCH ORDERS COUNT
   useEffect(() => {
+
     const fetchOrders = async () => {
-      const snap = await getDocs(collection(db, "orders"));
-      setOrdersCount(snap.size);
+      try {
+
+        const snap = await getDocs(
+          collection(db, "orders")
+        );
+
+        setOrdersCount(snap.size);
+
+      } catch (error) {
+        console.log(error);
+      }
     };
+
     fetchOrders();
+
   }, []);
 
   return (
     <nav className="navbar">
 
-      {/* 🔥 HAMBURGER */}
-      <button className="admin-hamburger" onClick={toggleSidebar}>
-        ☰
-      </button>
+      {/* LOGO */}
+      <h2 className="logo">
+        Admin Panel
+      </h2>
 
-      <h2 className="logo">Admin Panel</h2>
-
+      {/* LINKS */}
       <div className="nav-links">
-        <Link to="/admin">Dashboard</Link>
 
+        {/* DASHBOARD */}
+        <Link to="/admin">
+          Dashboard
+        </Link>
+
+        {/* ORDERS */}
         <Link to="/admin/orders">
           Orders 📦 ({ordersCount})
         </Link>
 
-        <Link to="/add-items">Add Items ➕</Link>
+        {/* ADD ITEMS */}
+        <Link to="/add-items">
+          Add Items ➕
+        </Link>
 
-        <button className="logout-btn" onClick={logout}>
+        {/* LOGOUT */}
+        <button
+          className="logout-btn"
+          onClick={logout}
+        >
           Logout
         </button>
+
       </div>
 
     </nav>
