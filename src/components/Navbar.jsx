@@ -18,7 +18,7 @@ function Navbar() {
     <>
       <nav className="navbar">
 
-        <h2 className="logo">Glow Salt</h2>
+        <h2 className="user-logo">Glow Salt</h2>
 
         {/* MOBILE BUTTON */}
         <button
