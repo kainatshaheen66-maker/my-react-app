@@ -22,8 +22,8 @@ function Navbar() {
 
         {/* MOBILE BUTTON */}
         <button
-          className="menu-btn"
-          onClick={() => setOpen(!open)}
+          className="user-hamburger"
+          onClick={() => setOpen(prev => !prev)}
         >
           ☰
         </button>

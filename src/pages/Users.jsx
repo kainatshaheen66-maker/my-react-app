@@ -28,15 +28,22 @@ function Users() {
   }, []);
 
   if (loading) {
-    return <h3 style={{ padding: "20px" }}>Loading users...</h3>;
+    return (
+      <h3 style={{ padding: "20px", color: "#ff8800" }}>
+        Loading users...
+      </h3>
+    );
   }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Registered Users</h2>
+    <div style={{ padding: "20px", color: "#ff8800" }}>
+
+      <h2 style={{ color: "#ff8800" }}>
+        Registered Users
+      </h2>
 
       {users.length === 0 ? (
-        <p>No users found</p>
+        <p style={{ color: "#ff8800" }}>No users found</p>
       ) : (
         users.map((user) => {
           const name =
@@ -55,11 +62,12 @@ function Users() {
             <div
               key={user.id}
               style={{
-                border: "1px solid #ddd",
+                border: "1px solid #ff8800",
                 padding: "12px",
                 marginBottom: "10px",
                 borderRadius: "8px",
-                background: "#f9f9f9",
+                background: "#fff3eb",
+                color: "#ff8800"
               }}
             >
               <p><b>Name:</b> {name}</p>

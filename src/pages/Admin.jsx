@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  collection,
-  getDocs,
-  updateDoc,
-  doc
-} from "firebase/firestore";
+import {collection, getDocs, updateDoc, doc }from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
