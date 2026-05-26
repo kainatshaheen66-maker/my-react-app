@@ -1,37 +1,72 @@
 import { useState, useEffect } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+} from "firebase/auth";
+
 import { auth } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+
   const [message, setMessage] = useState("");
+
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
   const navigate = useNavigate();
 
-  // 🔥 AUTO REDIRECT IF ALREADY LOGGED IN
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       if (user?.email === "admin@gmail.com") {
         navigate("/admin", { replace: true });
-      } 
-      else if (user) {
+      } else if (user) {
         navigate("/", { replace: true });
       }
     });
 
     return () => unsub();
-  }, []);
+  }, [navigate]);
+
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    setEmailError(false);
+    setPasswordError(false);
+    setMessage("");
+
+    const cleanEmail = email.trim();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!cleanEmail) {
+      setEmailError(true);
+      setMessage("❌ Email is required");
+      return;
+    }
+
+    if (!emailRegex.test(cleanEmail)) {
+      setEmailError(true);
+      setMessage("❌ Incorrect email");
+      return;
+    }
+
+    if (!password) {
+      setPasswordError(true);
+      setMessage("❌ Password is required");
+      return;
+    }
+
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
-        email,
+        cleanEmail,
         password
       );
 
@@ -42,7 +77,6 @@ function Login() {
       setEmail("");
       setPassword("");
 
-      // 🔥 ROLE BASED REDIRECT
       setTimeout(() => {
         if (user.email === "admin@gmail.com") {
           navigate("/admin", { replace: true });
@@ -52,13 +86,20 @@ function Login() {
       }, 800);
 
     } catch (error) {
-      setMessage("❌ " + error.message);
 
-      setTimeout(() => {
-        setMessage("");
-      }, 3000);
+      if (error.code === "auth/user-not-found") {
+        setEmailError(true);
+        setMessage("❌ Account not found");
+      } else {
+        setPasswordError(true);
+        setMessage("❌ Incorrect password");
+      }
+
+      setTimeout(() => setMessage(""), 3000);
     }
   };
+
+
 
   return (
     <div className="auth-page">
@@ -83,19 +124,35 @@ function Login() {
 
           <input
             type="email"
-            placeholder="Enter your email"
+            placeholder="Enter email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setEmailError(false);
+            }}
+            className={emailError ? "error-input" : ""}
           />
 
-          <input
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          {/* PASSWORD FIELD WITH EYE 👁️ INSIDE */}
+          <div className="password-box">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordError(false);
+              }}
+              className={passwordError ? "error-input" : ""}
+            />
+
+            <span
+              className="eye-icon"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </span>
+          </div>
 
           <button type="submit">
             Login

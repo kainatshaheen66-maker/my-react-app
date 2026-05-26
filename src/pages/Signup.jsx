@@ -16,15 +16,34 @@ import { useNavigate } from "react-router-dom";
 function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+
   const [message, setMessage] = useState("");
+  const [error, setError] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
 
+    setMessage("");
+    setError(false);
+
+    // 🔴 PASSWORD VALIDATION (NEW)
+    if (!password) {
+      setMessage("❌ Password is required");
+      setError(true);
+      return;
+    }
+
+    if (password.length < 6) {
+      setMessage("❌ Password must be at least 6 characters");
+      setError(true);
+      return;
+    }
+
     try {
-      // create auth user
       const userCredential =
         await createUserWithEmailAndPassword(
           auth,
@@ -34,47 +53,54 @@ function Signup() {
 
       const user = userCredential.user;
 
-      // 🔥 save user in firestore
-      await setDoc(
-        doc(db, "users", user.uid),
-        {
-          email: user.email,
-          displayName: user.email.split("@")[0],
-          createdAt: serverTimestamp(),
-        }
-      );
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        displayName: user.email.split("@")[0],
+        createdAt: serverTimestamp(),
+      });
 
-      // stop auto login
       await signOut(auth);
 
-      setMessage(
-        "🎉 Account Created Successfully! Redirecting..."
-      );
+      setMessage("🎉 User successfully created");
+      setError(false);
 
       setEmail("");
       setPassword("");
 
       setTimeout(() => {
-        navigate("/login", {
-          replace: true,
-        });
+        navigate("/login", { replace: true });
       }, 2000);
 
     } catch (error) {
-      setMessage("❌ " + error.message);
+      console.log(error.code);
 
-      setTimeout(() => {
-        setMessage("");
-      }, 3000);
+      if (error.code === "auth/email-already-in-use") {
+        setMessage("❌ User already registered");
+      } else {
+        setMessage("❌ Something went wrong. Try again.");
+      }
+
+      setError(true);
+
+      setTimeout(() => setMessage(""), 3000);
     }
   };
 
+
+
   return (
     <div className="auth-page">
+
       <div className="auth-card">
 
         {message && (
-          <div className="auth-message">
+          <div
+            className="auth-message"
+            style={{
+              color: error ? "red" : "green",
+              fontWeight: "bold"
+            }}
+          >
             {message}
           </div>
         )}
@@ -87,36 +113,40 @@ function Signup() {
           Join Glow Salt today
         </p>
 
-        <form
-          onSubmit={handleSignup}
-          className="auth-form"
-        >
+        <form onSubmit={handleSignup} className="auth-form">
 
           <input
             type="email"
             placeholder="Enter your email"
             value={email}
-            onChange={(e)=>
-              setEmail(e.target.value)
-            }
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
 
-          <input
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e)=>
-              setPassword(e.target.value)
-            }
-            required
-          />
+          {/* PASSWORD FIELD WITH EYE 👁️ */}
+          <div className="password-box">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
+            <span
+              className="eye-icon"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </span>
+          </div>
 
           <button type="submit">
             Signup
           </button>
 
         </form>
+
       </div>
     </div>
   );

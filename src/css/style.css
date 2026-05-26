@@ -2014,6 +2014,72 @@ img {
   border: 1px solid #ddd;
 }
 
+/* 📱 Tablet */
+@media (max-width: 768px) {
+  .add-items-card {
+    max-width: 95%;
+    padding: 22px;
+    border-radius: 16px;
+    margin-bottom: 100px;
+  }
+
+  .add-items-card h1 {
+    font-size: 20px;
+  }
+
+  .add-items-card input,
+  .add-items-card textarea {
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  .add-items-card button {
+    font-size: 15px;
+    padding: 12px;
+  }
+
+  .preview-image {
+    height: 200px;
+  }
+}
+
+/* 📱 Mobile */
+@media (max-width: 480px) {
+  .add-items-page {
+    padding: 20px 10px;
+  }
+
+  .add-items-card {
+    max-width: 100%;
+    padding: 18px;
+    border-radius: 14px;
+    margin-bottom: 80px;
+  }
+
+  .add-items-card h1 {
+    font-size: 18px;
+  }
+
+  .add-items-card input,
+  .add-items-card textarea {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .add-items-card textarea {
+    min-height: 100px;
+  }
+
+  .add-items-card button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .preview-image {
+    height: 160px;
+  }
+}
+
 
 /* LOGIN + SIGNUP */
 
@@ -2106,6 +2172,49 @@ img {
   margin-bottom: 20px;
   text-align: center;
   font-weight: 500;
+}
+
+.error-input{
+  border:2px solid red !important;
+  outline:none;
+}
+
+.error-input:focus{
+  border:2px solid red !important;
+  box-shadow:0 0 8px rgba(255,0,0,.3);
+}
+
+.password-box {
+  position: relative;
+  width: 100%;
+}
+
+.password-box input {
+  width: 100%;
+  padding-right: 40px; /* only space for eye icon */
+  box-sizing: border-box;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+  color: #555;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    width: 95%;
+    padding: 18px;
+  }
+
+  .auth-title {
+    font-size: 20px;
+  }
 }
 
 @keyframes fadeIn {
@@ -2367,7 +2476,7 @@ img {
 
   cursor: pointer;
 
-  z-index: 5000;
+  z-index: 999999;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
@@ -2412,7 +2521,7 @@ img {
   }
 
    .admin-hamburger {
-    position: absolute !important;
+    position: fixed;
     top: 40px !important;
     left: 35px !important;
 
